@@ -36,9 +36,9 @@ jobs:
 
           pr_data=$(gh pr view https://github.com/test-org-torres/test-ci/pull/2 --json reviewRequests,reviews)
 
-          REVIEW_REQUESTS=$(echo "$PR_DATA" | jq '.reviewRequests')
+          REVIEW_REQUESTS=$(echo "$pr_data" | jq '.reviewRequests')
 
-          REVIEWS=$(echo "$PR_DATA" | jq '.reviews')
+          REVIEWS=$(echo "$pr_data" | jq '.reviews')
 
           echo "$REVIEW_REQUESTS"
 
