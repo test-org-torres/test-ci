@@ -22,7 +22,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     outputs:
-        is_approved: ${{ steps.step1.outputs.is_approved }}
+        is_approved: ${{ steps.reviewers.outputs.is_approved }}
 
     steps:
       - name: Checkout code
