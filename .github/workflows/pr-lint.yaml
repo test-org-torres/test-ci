@@ -7,11 +7,28 @@ on:
       - edited
       - synchronize
 
+  pull_request_review:
+    types: [edited, dismissed, submitted]
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  get-reviewers:
+    runs-on: ubuntu-latest
+    outputs:
+      reviewers: ${{ steps.reviewers.outputs.list }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get Requested Reviewers
+        id: reviewers
+        run: |
+          reviewers=$(gh pr view ${{ github.event.pull_request.number }} --json reviewers --jq '.reviewers[].login' | jq -s .)
+          echo "::set-output name=list::$reviewers"
+
   add-reviewer:
     permissions: write-all
     name: Add Reviewer
