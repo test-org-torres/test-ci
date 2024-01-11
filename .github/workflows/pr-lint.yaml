@@ -6,6 +6,7 @@ on:
       - opened
       - edited
       - synchronize
+      - review_requested
 
   pull_request_review:
     types: [edited, dismissed, submitted]
