@@ -1,0 +1,29 @@
+name: "Lint PR"
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+  add-reviewer:
+    name: Add Reviewer
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run script to add reviewer
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
+        PR_REVIEWERS: ${{ toJson(github.event.pull_request.requested_reviewers) }}
+        PATTERN: "^\\w+!:"
+        REVIEWER: "test-org-torres"
+      run: bash .github/scripts/script_add_remove_reviewer.sh
