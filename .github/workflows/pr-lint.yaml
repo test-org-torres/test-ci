@@ -2,13 +2,13 @@ name: "Lint PR"
 
 on:
   pull_request:
-    types:
-      - opened
-      - edited
-      - synchronize
+    types: [opened, edited, synchronize]
 
   pull_request_review:
     types: [edited, dismissed, submitted]
+    
+  pull_request_target:
+    types: [review_requested, review_request_removed]
 
 env:
   GITHUB_TOKEN: ${{ secrets.THIS_REPO_SECRET }}
