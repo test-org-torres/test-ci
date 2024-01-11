@@ -34,6 +34,15 @@ jobs:
           team_members=$(gh api orgs/test-org-torres/teams/torres-sdk/members --jq '.[].login') 
           approvals=$(gh pr view https://github.com/test-org-torres/test-ci/pull/2 --json reviews --jq '.reviews[] | select(.state=="APPROVED").author.login')
 
+          pr_data=$(gh pr view https://github.com/test-org-torres/test-ci/pull/2 --json reviewRequests,reviews)
+
+          REVIEW_REQUESTS=$(echo "$PR_DATA" | jq '.reviewRequests')
+
+          REVIEWS=echo "Review Requests: $REVIEW_REQUESTS"
+
+          echo $REVIEW_REQUESTS
+
+          echo $REVIEWS
           
           is_approved="false"
           for member in $team_members; do
