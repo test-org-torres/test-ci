@@ -7,6 +7,7 @@ echo "PATTERN: $PATTERN"
 echo "PR_REVIEWERS: $PR_REVIEWERS"
 echo "GITHUB_TOKEN: $GITHUB_TOKEN"
 echo "REVIEWER: $REVIEWER"
+echo "PR_TEAM_REVIEWERS: $PR_TEAM_REVIEWERS"
 
 # GitHub API URLs
 API_REVIEWERS_URL="https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/requested_reviewers"
