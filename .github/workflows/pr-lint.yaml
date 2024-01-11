@@ -19,6 +19,7 @@ concurrency:
 
 jobs:
   get-reviewers:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
