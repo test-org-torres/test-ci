@@ -29,10 +29,20 @@ jobs:
         id: reviewers
         run: |
           team_members=$(gh api orgs/test-org-torres/teams/torres-sdk/members --jq '.[].login') 
-          echo "TEAM_MEMBERS=$team_members" >> $GITHUB_ENV
-
           approvals=$(gh pr view https://github.com/test-org-torres/test-ci/pull/2 --json reviews --jq '.reviews[] | select(.state=="APPROVED").author.login')
-          echo "APPROVALS=$approvals" >> $GITHUB_ENV
+
+          
+          is_approved="false"
+          for member in $team_members; do
+            for approver in $approvals; do
+              if [ "$member" == "$approver" ]; then
+                is_approved="true"
+                break 2
+              fi
+            done
+          done
+
+          echo "IS_APPROVED=${is_approved}" >> $GITHUB_ENV
 
   add-reviewer:
     permissions: write-all
