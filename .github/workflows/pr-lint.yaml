@@ -21,6 +21,9 @@ jobs:
   get-reviewers:
     permissions: write-all
     runs-on: ubuntu-latest
+    outputs:
+        is_approved: ${{ steps.step1.outputs.is_approved }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -42,7 +45,7 @@ jobs:
             done
           done
 
-          echo "IS_APPROVED=${is_approved}" >> $GITHUB_OUTPUT
+          echo "is_approved=${is_approved}" >> $GITHUB_OUTPUT
 
   add-reviewer:
     permissions: write-all
@@ -60,6 +63,7 @@ jobs:
         PR_REVIEWERS: ${{ toJson(github.event.pull_request.requested_reviewers) }}
         PR_TEAM_REVIEWERS: ${{ toJson(github.event.pull_request.team_reviewers) }}
         PATTERN: "^\\w+!:"
+        IS_APPROVED: ${{needs.job1.outputs.is_approved}}
         REVIEWER: "test-org-torres/torres-sdk"
       
       run: bash .github/scripts/add-reviewer.sh
