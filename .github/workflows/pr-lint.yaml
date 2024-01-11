@@ -12,6 +12,7 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.THIS_REPO_SECRET }}
+  PR_NUMBER: ${{ github.event.pull_request.number }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -31,8 +32,6 @@ jobs:
 
       - name: Get Requested Reviewers
         id: reviewers
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           FE_MEMBERS=$(gh api orgs/test-org-torres/teams/torres-sdk/$PR_NUMBER --jq '.[].login')
 
