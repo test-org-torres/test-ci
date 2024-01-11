@@ -52,7 +52,9 @@ jobs:
             done
           done
 
-          echo $IS_APPROVED_BY_FE
+          echo "APPROVALS=$APPROVALS"
+          echo "HAS_FE_REVIEW_REQUEST=$HAS_FE_REVIEW_REQUEST"
+          echo "IS_APPROVED_BY_FE=$IS_APPROVED_BY_FE"
 
           echo "IS_APPROVED_BY_FE=$IS_APPROVED_BY_FE" >> $GITHUB_OUTPUT
           echo "HAS_FE_REVIEW_REQUEST=$HAS_FE_REVIEW_REQUEST" >> $GITHUB_OUTPUT
