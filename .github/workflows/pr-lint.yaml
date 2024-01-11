@@ -101,7 +101,7 @@ jobs:
             exit 1
           fi
 
-          if [ "$HAS_FE_REVIEW_REQUEST" == "true" ]; then
+          if [ "$HAS_FE_REVIEW_REQUEST" != "true" ]; then
             exit 1
           fi
         fi
