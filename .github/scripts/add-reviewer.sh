@@ -25,6 +25,4 @@ if [[ $PR_TITLE =~ $PATTERN ]]; then
 
     echo "Reviewer added"
   fi
-
-  exit 1
 fi
