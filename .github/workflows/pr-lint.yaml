@@ -26,6 +26,8 @@ jobs:
         PR_NUMBER: ${{ github.event.pull_request.number }}
         PR_TITLE: ${{ github.event.pull_request.title }}
         PR_REVIEWERS: ${{ toJson(github.event.pull_request.requested_reviewers) }}
+        PR_TEAM_REVIEWERS: ${{ toJson(github.event.pull_request.team_reviewers) }}
         PATTERN: "^\\w+!:"
         REVIEWER: "test-org-torres/torres-sdk"
+      
       run: bash .github/scripts/add-reviewer.sh
