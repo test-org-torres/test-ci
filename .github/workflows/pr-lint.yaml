@@ -37,7 +37,7 @@ jobs:
           PR_DATA=$(gh pr view https://github.com/test-org-torres/test-ci/pull/2 --json reviewRequests,reviews)
 
           HAS_FE_REVIEW_REQUEST=$(echo "$PR_DATA" | jq '[.reviewRequests[].slug | select(. == "test-org-torres/torres-sdk")] | length > 0')
-          APPROVALS=$(echo "$PR_DATA" | jq '.reviews[] | select(.state=="APPROVED").author.login')
+          APPROVALS=$(echo "$PR_DATA" | jq -r '.reviews[] | select(.state=="APPROVED").author.login')
 
           IS_APPROVED_BY_FE="false"
           for member in $FE_MEMBERS; do
