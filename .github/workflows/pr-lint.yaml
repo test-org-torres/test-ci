@@ -29,10 +29,10 @@ jobs:
         id: reviewers
         run: |
           team_members=$(gh api orgs/test-org-torres/teams/torres-sdk/members --jq '.[].login') 
-          echo "::set-output name=team_members::$team_members"
+          echo "team_members=$team_members" >> $TEAM_MEMBERS
 
-          approved=$(gh pr view https://github.com/test-org-torres/test-ci/pull/2 --json reviews --jq '.reviews[] | select(.state=="APPROVED").author.login')
-          echo "::set-output name=approved::$approved"
+          approvals=$(gh pr view https://github.com/test-org-torres/test-ci/pull/2 --json reviews --jq '.reviews[] | select(.state=="APPROVED").author.login')
+          echo "approvals=$approvals" >> $APPROVALS
 
   add-reviewer:
     permissions: write-all
