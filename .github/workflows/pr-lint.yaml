@@ -29,8 +29,11 @@ jobs:
       - name: Get Requested Reviewers
         id: reviewers
         run: |
-          reviewers=$(gh pr view ${{ github.event.pull_request.number }} --json reviewers --jq '.reviewers[].login' | jq -s .)
-          echo "::set-output name=list::$reviewers"
+          team_members=$(gh api orgs/{org}/teams/{team_slug}/members --jq '.[].login') 
+          echo "::set-output name=team_members::$team_members"
+
+          approved=$(gh pr view https://github.com/test-org-torres/test-ci/pull/2 --json reviews --jq '.reviews[] | select(.state=="APPROVED").author.login')
+          echo "::set-output name=approved::$approved"
 
   add-reviewer:
     permissions: write-all
