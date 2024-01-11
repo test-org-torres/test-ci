@@ -37,6 +37,7 @@ jobs:
   add-reviewer:
     permissions: write-all
     name: Add Reviewer
+    needs: [get-reviewers]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
