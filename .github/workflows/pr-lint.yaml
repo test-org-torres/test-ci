@@ -27,4 +27,4 @@ jobs:
         PR_REVIEWERS: ${{ toJson(github.event.pull_request.requested_reviewers) }}
         PATTERN: "^\\w+!:"
         REVIEWER: "test-org-torres"
-      run: bash .github/scripts/script_add_remove_reviewer.sh
+      run: bash .github/scripts/add-reviewer.sh
