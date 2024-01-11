@@ -28,7 +28,7 @@ jobs:
       - name: Get Requested Reviewers
         id: reviewers
         run: |
-          team_members=$(gh api orgs/{org}/teams/{team_slug}/members --jq '.[].login') 
+          team_members=$(gh api orgs/test-org-torres/teams/torres-sdk/members --jq '.[].login') 
           echo "::set-output name=team_members::$team_members"
 
           approved=$(gh pr view https://github.com/test-org-torres/test-ci/pull/2 --json reviews --jq '.reviews[] | select(.state=="APPROVED").author.login')
