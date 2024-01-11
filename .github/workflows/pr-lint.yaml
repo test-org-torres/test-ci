@@ -11,6 +11,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.THIS_REPO_SECRET }}
   PR_NUMBER: ${{ github.event.pull_request.number }}
   PR_TITLE: ${{ github.event.pull_request.title }}
+  ACTOR: ${{ github.actor }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -35,6 +36,8 @@ jobs:
           PR_DATA=$(gh pr view https://github.com/test-org-torres/test-ci/pull/$PR_NUMBER --json reviewRequests,reviews)
           HAS_FE_REVIEW_REQUEST=$(echo "$PR_DATA" | jq '[.reviewRequests[].slug | select(. == "test-org-torres/torres-sdk")] | length > 0')
           APPROVALS=$(echo "$PR_DATA" | jq -r '.reviews[] | select(.state=="APPROVED").author.login')
+
+          echo $ACTOR
 
           IS_APPROVED_BY_FE="false"
           for member in $FE_MEMBERS; do
