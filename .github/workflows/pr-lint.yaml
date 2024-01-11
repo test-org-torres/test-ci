@@ -38,7 +38,7 @@ jobs:
 
           REVIEW_REQUESTS=$(echo "$PR_DATA" | jq '.reviewRequests')
 
-          REVIEWS=echo "Review Requests: $REVIEW_REQUESTS"
+          REVIEWS=$(echo "$PR_DATA" | jq '.reviews')
 
           echo $REVIEW_REQUESTS
 
