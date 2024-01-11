@@ -6,7 +6,6 @@ on:
       - opened
       - edited
       - synchronize
-      - review_requested
 
   pull_request_review:
     types: [edited, dismissed, submitted]
@@ -32,13 +31,10 @@ jobs:
 
       - name: Get Requested Reviewers
         id: reviewers
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          
         run: |
           FE_MEMBERS=$(gh api orgs/test-org-torres/teams/torres-sdk/members --jq '.[].login')
 
-          PR_DATA=$(gh pr view https://github.com/test-org-torres/test-ci/pull/$PR_NUMBER --json reviewRequests,reviews)
+          PR_DATA=$(gh pr view https://github.com/test-org-torres/test-ci/pull/2 --json reviewRequests,reviews)
 
           HAS_FE_REVIEW_REQUEST=$(echo "$PR_DATA" | jq '[.reviewRequests[].slug | select(. == "test-org-torres/torres-sdk")] | length > 0')
           APPROVALS=$(echo "$PR_DATA" | jq -r '.reviews[] | select(.state=="APPROVED").author.login')
@@ -82,3 +78,30 @@ jobs:
         REVIEWER: "test-org-torres/torres-sdk"
 
       run: bash .github/scripts/add-reviewer.sh
+
+  validate-fe-review:
+    permissions: write-all
+    name: Validate FE Review
+    needs: [add-reviewer]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Ensure FE Approval
+      env:
+        PR_TITLE: ${{ github.event.pull_request.title }}
+        PATTERN: "^\\w+!:"
+        IS_APPROVED_BY_FE: ${{needs.get-reviewers.outputs.IS_APPROVED_BY_FE}}
+        HAS_FE_REVIEW_REQUEST: ${{needs.get-reviewers.outputs.HAS_FE_REVIEW_REQUEST}}
+
+      run: |
+        if [ "$IS_APPROVED_BY_FE" != "true" ]; then
+          if [[ $PR_TITLE =~ $PATTERN ]]; then
+            exit 1
+          fi
+
+          if [ "$HAS_FE_REVIEW_REQUEST" == "true" ]; then
+            exit 1
+          fi
+        fi
