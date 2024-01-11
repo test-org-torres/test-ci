@@ -42,7 +42,7 @@ jobs:
             done
           done
 
-          echo "IS_APPROVED=${is_approved}" >> $GITHUB_ENV
+          echo "IS_APPROVED=${is_approved}" >> $GITHUB_OUTPUT
 
   add-reviewer:
     permissions: write-all
