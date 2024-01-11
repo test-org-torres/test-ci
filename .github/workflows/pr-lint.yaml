@@ -92,8 +92,8 @@ jobs:
       env:
         PR_TITLE: ${{ github.event.pull_request.title }}
         PATTERN: "^\\w+!:"
-        IS_APPROVED_BY_FE: ${{jobs.get-reviewers.outputs.IS_APPROVED_BY_FE}}
-        HAS_FE_REVIEW_REQUEST: ${{jobs.get-reviewers.outputs.HAS_FE_REVIEW_REQUEST}}
+        IS_APPROVED_BY_FE: ${{ needs.add-reviewer.env.IS_APPROVED_BY_FE}}
+        HAS_FE_REVIEW_REQUEST: ${{ needs.add-reviewer.env.HAS_FE_REVIEW_REQUEST}}
 
       run: |
         if [ "$IS_APPROVED_BY_FE" != "true" ]; then
