@@ -33,6 +33,7 @@ jobs:
       - name: Get Requested Reviewers
         id: reviewers
         run: |
+          echo $PR_NUMBER
           FE_MEMBERS=$(gh api orgs/test-org-torres/teams/torres-sdk/$PR_NUMBER --jq '.[].login')
 
           PR_DATA=$(gh pr view https://github.com/test-org-torres/test-ci/pull/2 --json reviewRequests,reviews)
