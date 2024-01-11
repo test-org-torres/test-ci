@@ -40,9 +40,9 @@ jobs:
 
           REVIEWS=$(echo "$PR_DATA" | jq '.reviews')
 
-          echo $REVIEW_REQUESTS
+          echo "$REVIEW_REQUESTS"
 
-          echo $REVIEWS
+          echo "$REVIEWS"
           
           is_approved="false"
           for member in $team_members; do
