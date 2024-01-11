@@ -8,8 +8,8 @@ echo "PR_REVIEWERS: $PR_REVIEWERS"
 echo "GITHUB_TOKEN: $GITHUB_TOKEN"
 echo "REVIEWER: $REVIEWER"
 echo "PR_TEAM_REVIEWERS: $PR_TEAM_REVIEWERS"
-echo "TEAM_MEMBERS: $team_members"
-echo "APPROVED: $approved"
+echo "TEAM_MEMBERS: $TEAM_MEMBERS"
+echo "APPROVED: $APPROVALS"
 
 # GitHub API URLs
 API_REVIEWERS_URL="https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/requested_reviewers"
