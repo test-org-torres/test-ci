@@ -22,7 +22,7 @@ jobs:
 
     - name: Run script to add reviewer
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.THIS_REPO_SECRET }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
         PR_TITLE: ${{ github.event.pull_request.title }}
         PR_REVIEWERS: ${{ toJson(github.event.pull_request.requested_reviewers) }}
