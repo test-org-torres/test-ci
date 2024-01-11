@@ -82,7 +82,7 @@ jobs:
   validate-fe-review:
     permissions: write-all
     name: Validate FE Review
-    needs: [add-reviewer]
+    needs: [get-reviewers, add-reviewer]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -92,8 +92,8 @@ jobs:
       env:
         PR_TITLE: ${{ github.event.pull_request.title }}
         PATTERN: "^\\w+!:"
-        IS_APPROVED_BY_FE: ${{ needs.add-reviewer.env.IS_APPROVED_BY_FE}}
-        HAS_FE_REVIEW_REQUEST: ${{ needs.add-reviewer.env.HAS_FE_REVIEW_REQUEST}}
+        IS_APPROVED_BY_FE: ${{needs.get-reviewers.outputs.IS_APPROVED_BY_FE}}
+        HAS_FE_REVIEW_REQUEST: ${{needs.get-reviewers.outputs.HAS_FE_REVIEW_REQUEST}}
 
       run: |
         if [ "$IS_APPROVED_BY_FE" != "true" ]; then
