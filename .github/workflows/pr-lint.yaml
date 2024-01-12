@@ -14,6 +14,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  setup-check-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Check Run
+        id: create_check
+        run: |
+          PR_SHA="$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                         -H "Accept: application/vnd.github.v3+json" \
+                         https://api.github.com/repos/${{ github.repository }}/pulls/${{ env.PR_NUMBER }} | jq -r .head.sha)"
+
+          CHECK_RUN=$(curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/check-runs \
+            -d '{"name": "Lint PR Check", "head_sha": "'$PR_SHA'", "status": "in_progress"}')
+
+          CHECK_RUN_ID=$(echo $CHECK_RUN | jq -r .id)
+          echo "CHECK_RUN_ID=$CHECK_RUN_ID" >> $GITHUB_ENV
+
+
+  complete-check-run:
+    needs: [setup-check-run]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Update Check Run
+        run: |
+          curl -X PATCH \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/check-runs/${{ env.CHECK_RUN_ID }}" \
+            -d '{"name": "Lint PR Check", "status": "completed", "conclusion": "success", "completed_at": "'$(date -Iseconds)'"}'
+
   get-reviewers:
     permissions: write-all
     runs-on: ubuntu-latest
