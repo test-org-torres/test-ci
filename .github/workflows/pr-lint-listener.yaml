@@ -3,15 +3,16 @@ name: "PR Event Listener"
 on:
   pull_request:
     types: [opened, edited, synchronize, review_requested, review_request_removed]
+    
   pull_request_review:
     types: [submitted, edited, dismissed]
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  concurrency:
-    group: ${{ github.workflow }}-${{ github.run_id }}
-    cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   trigger-pr-lint:
