@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, edited, synchronize, review_requested, review_request_removed]
 
- repository_dispatch:
+  repository_dispatch:
     types: [custom_pull_request_event]
 
 env:
