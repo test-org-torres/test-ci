@@ -20,6 +20,8 @@ jobs:
           LATEST_RUN_ID=$(gh run list --repo ${{ github.repository }} --branch ${{ github.ref_name }} | head -n 1 | awk '{print $7}')
           echo "id: $LATEST_RUN_ID"
 
+          echo ${{ github.event.head.ref }}
+          echo ${{ github.head.ref }}
           echo ${{ toJSON(github) }}
           echo "LATEST_RUN_ID=$LATEST_RUN_ID" >> $GITHUB_ENV
 
