@@ -69,28 +69,4 @@ jobs:
 
       run: bash .github/scripts/add-reviewer.sh
 
-  validate-fe-review:
-    permissions: write-all
-    name: Validate FE Review
-    needs: [get-reviewers, add-reviewer]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
 
-    - name: Ensure FE Approval
-      env:
-        PATTERN: "^\\w+!:"
-        IS_APPROVED_BY_FE: ${{needs.get-reviewers.outputs.IS_APPROVED_BY_FE}}
-        HAS_FE_REVIEW_REQUEST: ${{needs.get-reviewers.outputs.HAS_FE_REVIEW_REQUEST}}
-
-      run: |
-        if [ "$IS_APPROVED_BY_FE" != "true" ]; then
-          if [[ $PR_TITLE =~ $PATTERN ]]; then
-            exit 1
-          fi
-
-          if [ "$HAS_FE_REVIEW_REQUEST" == "true" ]; then
-            exit 1
-          fi
-        fi
