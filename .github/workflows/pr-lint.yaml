@@ -19,6 +19,7 @@ concurrency:
 
 jobs:
   get-reviewers:
+    name: ${{ github.event_name }} - Get Reviewers
     permissions: write-all
     runs-on: ubuntu-latest
     outputs:
