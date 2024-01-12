@@ -14,7 +14,7 @@ env:
   ACTOR: ${{ github.actor }}
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number  || github.workflow }}-${{ github.event.pull_request_review.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.workflow }}-${{ github.event.pull_request_review.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
