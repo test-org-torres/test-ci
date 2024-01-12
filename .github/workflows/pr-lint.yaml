@@ -1,52 +1,23 @@
 name: "Lint PR"
 
 on:
-  repository_dispatch:
-    types: [trigger-pr-lint]
+  pull_request:
+    types: [opened, edited, synchronize, review_requested, review_request_removed]
+
+  pull_request_review:
+    types: [submitted, edited, dismissed]
 
 env:
   GITHUB_TOKEN: ${{ secrets.THIS_REPO_SECRET }}
-  PR_NUMBER: ${{ github.event.client_payload.pr_number }}
-  PR_TITLE: ${{ github.event.client_payload.pr_title }}
+  PR_NUMBER: ${{ github.event.pull_request.number }}
+  PR_TITLE: ${{ github.event.pull_request.title }}
+  ACTOR: ${{ github.actor }}
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  setup-check-run:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create Check Run
-        id: create_check
-        run: |
-          PR_SHA="$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                         -H "Accept: application/vnd.github.v3+json" \
-                         https://api.github.com/repos/${{ github.repository }}/pulls/${{ env.PR_NUMBER }} | jq -r .head.sha)"
-
-          CHECK_RUN=$(curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/check-runs \
-            -d '{"name": "Lint PR Check", "head_sha": "'$PR_SHA'", "status": "in_progress"}')
-
-          CHECK_RUN_ID=$(echo $CHECK_RUN | jq -r .id)
-          echo "CHECK_RUN_ID=$CHECK_RUN_ID" >> $GITHUB_ENV
-
-
-  complete-check-run:
-    needs: [setup-check-run]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Update Check Run
-        run: |
-          curl -X PATCH \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/check-runs/${{ env.CHECK_RUN_ID }}" \
-            -d '{"name": "Lint PR Check", "status": "completed", "conclusion": "success", "completed_at": "'$(date -Iseconds)'"}'
-
   get-reviewers:
     permissions: write-all
     runs-on: ubuntu-latest
@@ -112,9 +83,17 @@ jobs:
 
     - name: Ensure FE Approval
       env:
+        PATTERN: "^\\w+!:"
+        IS_APPROVED_BY_FE: ${{needs.get-reviewers.outputs.IS_APPROVED_BY_FE}}
         HAS_FE_REVIEW_REQUEST: ${{needs.get-reviewers.outputs.HAS_FE_REVIEW_REQUEST}}
 
       run: |
-        if [ "$HAS_FE_REVIEW_REQUEST" == "true" ]; then
-          exit 1
+        if [ "$IS_APPROVED_BY_FE" != "true" ]; then
+          if [[ $PR_TITLE =~ $PATTERN ]]; then
+            exit 1
+          fi
+
+          if [ "$HAS_FE_REVIEW_REQUEST" == "true" ]; then
+            exit 1
+          fi
         fi
