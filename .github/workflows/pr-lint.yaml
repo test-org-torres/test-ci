@@ -1,20 +1,16 @@
 name: "Lint PR"
 
 on:
-  pull_request:
-    types: [opened, edited, synchronize, review_requested, review_request_removed]
-
-  pull_request_review:
-    types: [submitted, edited, dismissed]
+  repository_dispatch:
+    types: [PR Event Listener]
 
 env:
   GITHUB_TOKEN: ${{ secrets.THIS_REPO_SECRET }}
-  PR_NUMBER: ${{ github.event.pull_request.number }}
-  PR_TITLE: ${{ github.event.pull_request.title }}
-  ACTOR: ${{ github.actor }}
+  PR_NUMBER: ${{ github.event.client_payload.pr_number }}
+  PR_TITLE: ${{ github.event.client_payload.pr_title }}
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.workflow }}-${{ github.event.pull_request_review.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
