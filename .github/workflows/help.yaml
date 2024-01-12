@@ -23,8 +23,10 @@ jobs:
           echo "id: $LATEST_RUN_ID"
           echo "step 3"
 
-          echo "github.event.head.ref: ${{ github.event.head.ref }}"
-          echo "github.head.ref: ${{ github.head.ref }}"
+          
+          echo "github.event.head: ${{ toJSON(github.event.head) }}"
+          echo "github.head: ${{ toJSON(github.head) }}"
+          echo "github.event: ${{ toJSON(github.event) }}"
           echo "${{ toJSON(github) }}"
           echo "LATEST_RUN_ID=$LATEST_RUN_ID" >> $GITHUB_ENV
 
