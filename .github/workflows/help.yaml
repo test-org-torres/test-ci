@@ -5,13 +5,13 @@ on:
     types: [submitted, edited, dismissed]
 
 jobs:
-  trigger-workflow:
+  rerun-lint-pr:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-     - name: Get latest workflow run ID
+      - name: Get latest workflow run ID
         id: get_run_id
         run: |
           LATEST_RUN_ID=$(gh run list --repo ${{ github.repository }} --branch ${{ github.ref_name }} | head -n 1 | awk '{print $7}')
