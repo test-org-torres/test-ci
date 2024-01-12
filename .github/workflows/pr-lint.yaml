@@ -4,8 +4,8 @@ on:
   pull_request:
     types: [opened, edited, synchronize, review_requested, review_request_removed]
 
-  pull_request_review:
-    types: [submitted, edited, dismissed]
+ repository_dispatch:
+    types: [custom_pull_request_event]
 
 env:
   GITHUB_TOKEN: ${{ secrets.THIS_REPO_SECRET }}
