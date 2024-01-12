@@ -1,3 +1,5 @@
+name: "Rerun Lint PR"
+
 on:
   pull_request_review:
     types: [submitted, edited, dismissed]
@@ -6,11 +8,15 @@ jobs:
   trigger-workflow:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger custom event
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+     - name: Get latest workflow run ID
+        id: get_run_id
         run: |
-          curl \
-            -X POST \
-            -H "Authorization: token ${{ secrets.THIS_REPO_SECRET }}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://github.com/test-org-torres/test-ci/pull/${{ github.event.pull_request.number }}" \
-            -d '{"event_type": "custom_pull_request_event", "client_payload": {"pr_number": "${{ github.event.pull_request.number }}"} }'
+          LATEST_RUN_ID=$(gh run list --repo ${{ github.repository }} --branch ${{ github.ref_name }} | head -n 1 | awk '{print $7}')
+          echo "LATEST_RUN_ID=$LATEST_RUN_ID" >> $GITHUB_ENV
+
+      - name: Rerun latest workflow
+        if: env.LATEST_RUN_ID != ''
+        run: gh run rerun ${{ env.LATEST_RUN_ID }} --repo ${{ github.repository }}
