@@ -18,20 +18,11 @@ jobs:
       - name: Get latest workflow run ID
         id: get_run_id
         run: |
-          echo "step 1"
-          LATEST_RUN_ID=$(gh run list --repo ${{ github.repository }} --branch ${{ github.ref_name }} | head -n 1 | awk '{print $7}')
-          echo "step 2"
+          LATEST_RUN_ID=$(gh run list --repo ${{ github.repository }} --branch  ${{ github.event.pull_request.base.ref }} | head -n 1 | awk '{print $7}')
           echo "id: $LATEST_RUN_ID"
-          echo "step 3"
 
-          echo "github.head_ref: ${{ github.head_ref }}"
-          echo "github.ref: ${{ github.ref }}"
-          
-          echo "github.event.head: ${{ toJSON(github.event.head) }}"
-          
-          echo "github.head: ${{ toJSON(github.head) }}"
-          echo "github.event: ${{ toJSON(github.event) }}"
-          echo "${{ toJSON(github) }}"
+          echo "repo: ${{ github.repository }}"
+          echo "branch: ${{ github.event.pull_request.base.ref }}"
           echo "LATEST_RUN_ID=$LATEST_RUN_ID" >> $GITHUB_ENV
 
       - name: Rerun latest workflow
