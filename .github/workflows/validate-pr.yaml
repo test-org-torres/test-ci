@@ -18,6 +18,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.THIS_REPO_SECRET }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
+      EVENT: ${{ github.event }}
 
     steps:
       - name: Checkout code
@@ -26,6 +27,7 @@ jobs:
       - name: Get Requested Reviewers
         id: reviewers
         run: |
+          echo "EVENT=$EVENT"
           PR_DATA=$(gh pr view https://github.com/test-org-torres/test-ci/pull/$PR_NUMBER --json reviewRequests,reviews)
           HAS_FE_REVIEW_REQUEST=$(echo "$PR_DATA" | jq '[.reviewRequests[].slug | select(. == "test-org-torres/torres-sdk")] | length > 0')
 
