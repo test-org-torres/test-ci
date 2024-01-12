@@ -11,24 +11,24 @@ on:
     types: [submitted, edited, dismissed]
 
 
-  jobs:
-    validate-pr:
-      permissions: write-all
-      runs-on: ubuntu-latest
-      env:
-        GITHUB_TOKEN: ${{ secrets.THIS_REPO_SECRET }}
-        PR_NUMBER: ${{ github.event.pull_request.number }}
+jobs:
+  validate-pr:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.THIS_REPO_SECRET }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
 
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-        - name: Get Requested Reviewers
-          id: reviewers
-          run: |
-            PR_DATA=$(gh pr view https://github.com/test-org-torres/test-ci/pull/$PR_NUMBER --json reviewRequests,reviews)
-            HAS_FE_REVIEW_REQUEST=$(echo "$PR_DATA" | jq '[.reviewRequests[].slug | select(. == "test-org-torres/torres-sdk")] | length > 0')
+      - name: Get Requested Reviewers
+        id: reviewers
+        run: |
+          PR_DATA=$(gh pr view https://github.com/test-org-torres/test-ci/pull/$PR_NUMBER --json reviewRequests,reviews)
+          HAS_FE_REVIEW_REQUEST=$(echo "$PR_DATA" | jq '[.reviewRequests[].slug | select(. == "test-org-torres/torres-sdk")] | length > 0')
 
-            if [ "$IS_APPROVED_BY_FE" == "true" ]; then
-              exit 1
-            fi
+          if [ "$IS_APPROVED_BY_FE" == "true" ]; then
+            exit 1
+          fi
