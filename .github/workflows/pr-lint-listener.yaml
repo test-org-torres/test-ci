@@ -9,10 +9,6 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  concurrency:
-    group: ${{ github.workflow }}-${{ github.run_id }}
-    cancel-in-progress: true
-
 jobs:
   trigger-pr-lint:
     runs-on: ubuntu-latest
