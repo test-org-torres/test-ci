@@ -6,9 +6,6 @@ on:
       types:
         - completed
 
-  pull_request_review:
-    types: [submitted, edited, dismissed]
-
   jobs:
     get-reviewers:
       permissions: write-all
