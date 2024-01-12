@@ -26,7 +26,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
-          echo "PR_NUMBER=${{ github.event.pull_  request.number }}" >> $GITHUB_ENV
+          echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
 
       - name: Extract PR Information for Pull Request Review Event
         if: github.event_name == 'pull_request_review'
