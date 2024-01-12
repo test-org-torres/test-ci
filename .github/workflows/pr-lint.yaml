@@ -21,7 +21,7 @@ jobs:
     name: ${{ github.event_name }} - Get Reviewers
     permissions: write-all
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: ${{ github.event_name }} == 'pull_request'
     outputs:
         IS_APPROVED_BY_FE: ${{ steps.reviewers.outputs.IS_APPROVED_BY_FE }}
         HAS_FE_REVIEW_REQUEST: ${{ steps.reviewers.outputs.HAS_FE_REVIEW_REQUEST }}
@@ -59,7 +59,7 @@ jobs:
     name: Add Reviewer
     needs: [get-reviewers]
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: ${{ github.event_name }} == 'pull_request'
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -80,7 +80,7 @@ jobs:
     name: Validate FE Review
     needs: [get-reviewers, add-reviewer]
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: ${{ github.event_name }} == 'pull_request'
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -106,8 +106,8 @@ jobs:
     permissions: write-all
     name: Trigguer Pull Request
     runs-on: ubuntu-latest
-     if: github.event_name == 'pull_request_review'
-
+    if: ${{ github.event_name }} == 'pull_request_review'
+    steps:
     - name: Edit PR Title
       run: |
         curl \
