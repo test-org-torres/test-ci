@@ -18,7 +18,7 @@ jobs:
       - name: Get latest workflow run ID
         id: get_run_id
         run: |
-          LATEST_RUN_ID=$(gh run list --repo ${{ github.repository }} --branch {{ github.event.pull_request.head.ref }} --json databaseId --jq '.[0].databaseId')
+          LATEST_RUN_ID=$(gh run list --repo ${{ github.repository }} --branch ${{ github.event.pull_request.head.ref }} --json databaseId --jq '.[0].databaseId')
           echo "id: $LATEST_RUN_ID"
 
           echo "label: ${{ github.event.pull_request.head.label }}"
