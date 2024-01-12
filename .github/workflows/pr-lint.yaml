@@ -1,8 +1,10 @@
 name: "Lint PR"
 
 on:
-  repository_dispatch:
-    types: [PR Event Listener]
+  workflow_run:
+    workflows: ["PR Event Listener"]
+    types: 
+      - completed
 
 env:
   GITHUB_TOKEN: ${{ secrets.THIS_REPO_SECRET }}
