@@ -10,6 +10,7 @@ env:
 jobs:
   rerun-lint-pr:
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -23,8 +24,13 @@ jobs:
           echo "id: $LATEST_RUN_ID"
           echo "step 3"
 
+          echo "github.head_ref: ${{ $github.head_ref }}"
+          echo "github.head_ref: $github.head_ref"
+          echo "github.ref: ${{ github.ref }}"
+          echo "github.ref: $github.ref"
           
           echo "github.event.head: ${{ toJSON(github.event.head) }}"
+          
           echo "github.head: ${{ toJSON(github.head) }}"
           echo "github.event: ${{ toJSON(github.event) }}"
           echo "${{ toJSON(github) }}"
