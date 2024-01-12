@@ -33,6 +33,8 @@ jobs:
       - name: Get Requested Reviewers
         id: reviewers
         run: |
+          echo {{ github.event }}
+          echo {{ github.event_name }}
           FE_MEMBERS=$(gh api orgs/test-org-torres/teams/torres-sdk/members --jq '.[].login')
           PR_DATA=$(gh pr view https://github.com/test-org-torres/test-ci/pull/$PR_NUMBER --json reviewRequests,reviews)
           HAS_FE_REVIEW_REQUEST=$(echo "$PR_DATA" | jq '[.reviewRequests[].slug | select(. == "test-org-torres/torres-sdk")] | length > 0')
