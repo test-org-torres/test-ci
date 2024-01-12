@@ -23,6 +23,8 @@ jobs:
 
           echo "repo: ${{ github.repository }}"
           echo "branch: ${{ github.event.pull_request.base.ref }}"
+          echo "branch: ${{ github.event.pull_request.ref }}"
+          echo "branch: ${{ toJSON(github.event.pull_request) }}"
           echo "LATEST_RUN_ID=$LATEST_RUN_ID" >> $GITHUB_ENV
 
       - name: Rerun latest workflow
