@@ -110,6 +110,7 @@ jobs:
     steps:
     - name: Edit PR Title
       run: |
+        echo 'event: ${{ github.event_name }}'
         curl \
           -X PATCH \
           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
