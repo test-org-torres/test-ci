@@ -66,7 +66,6 @@ jobs:
     permissions: write-all
     name: Add FE Review Request
     needs: [get-reviewers]
-    if: ${{needs.get-reviewers.outputs.SHOULD_ADD_FE_REVIEW_REQUEST}}
     runs-on: ubuntu-latest
     env:
       SHOULD_ADD_FE_REVIEW_REQUEST: ${{needs.get-reviewers.outputs.SHOULD_ADD_FE_REVIEW_REQUEST}}
