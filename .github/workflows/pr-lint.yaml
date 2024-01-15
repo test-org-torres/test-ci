@@ -48,12 +48,15 @@ jobs:
             for reviewer in $REVIWERS; do
               echo "reviewer: $reviewer"
               if [ "$member" == "$reviewer" ]; then
+                echo "entered inner" 
                 IS_REVIEWED_BY_FE="true"
                 break 2
               fi
             done
           done
 
+        
+           echo "IS_REVIEWED_BY_FE: $IS_REVIEWED_BY_FE"  
           echo "WAS_REVIEWED_BY_FE=$WAS_REVIEWED_BY_FE" >> $GITHUB_OUTPUT
           echo "HAS_FE_REVIEW_REQUEST=$HAS_FE_REVIEW_REQUEST" >> $GITHUB_OUTPUT
 
