@@ -22,7 +22,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     outputs:
-        WAS_REVIEWED_BY_FE: ${{ steps.reviewers.outputs.WAS_REVIEWED_BY_FE }}
+        SHOULD_ADD_FE_REVIEW_REQUEST: ${{ steps.reviewers.outputs.SHOULD_ADD_FE_REVIEW_REQUEST }}
         HAS_FE_REVIEW_REQUEST: ${{ steps.reviewers.outputs.HAS_FE_REVIEW_REQUEST }}
 
     steps:
