@@ -17,19 +17,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  get-reviewers:
+  add-fe-review-request:
     name: ${{ github.event_name }} - Get Reviewers
     permissions: write-all
     runs-on: ubuntu-latest
     outputs:
-        SHOULD_ADD_FE_REVIEW_REQUEST: ${{ steps.reviewers.outputs.SHOULD_ADD_FE_REVIEW_REQUEST }}
         HAS_FE_REVIEW_REQUEST: ${{ steps.reviewers.outputs.HAS_FE_REVIEW_REQUEST }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Get Requested Reviewers
+      - name: Add FE Review Request
         id: reviewers
         run: |
           FE_MEMBERS=$(gh api orgs/test-org-torres/teams/torres-sdk/members --jq '.[].login')
@@ -59,40 +58,25 @@ jobs:
             fi
           fi
 
+          if($SHOULD_ADD_FE_REVIEW_REQUEST == "true"); then
+            gh pr edit "$PR_NUMBER" --add-reviewer test-org-torres/torres-sdk
+          fi
+
           echo "HAS_FE_REVIEW_REQUEST=$HAS_FE_REVIEW_REQUEST" >> $GITHUB_OUTPUT
-          echo "SHOULD_ADD_FE_REVIEW_REQUEST=$SHOULD_ADD_FE_REVIEW_REQUEST" >> $GITHUB_OUTPUT
-
-  add-reviewer:
-    permissions: write-all
-    name: Add FE Review Request
-    needs: [get-reviewers]
-    runs-on: ubuntu-latest
-    env:
-      SHOULD_ADD_FE_REVIEW_REQUEST: ${{needs.get-reviewers.outputs.SHOULD_ADD_FE_REVIEW_REQUEST}}
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Run script to add reviewer
-      run: |
-        if($SHOULD_ADD_FE_REVIEW_REQUEST == "true"); then
-          gh pr edit "$PR_NUMBER" --add-reviewer test-org-torres/torres-sdk
-        fi
 
   validate-fe-review:
     permissions: write-all
     name: Validate FE Review
-    needs: [get-reviewers, add-reviewer]
+    needs: [add-fe-review-request]
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Ensure FE Approval
+    - name: Ensure FE Has Reviewed PR
       env:
-        HAS_FE_REVIEW_REQUEST: ${{needs.get-reviewers.outputs.HAS_FE_REVIEW_REQUEST}}
+        HAS_FE_REVIEW_REQUEST: ${{needs.add-fe-review-request.outputs.HAS_FE_REVIEW_REQUEST}}
 
       run: |
         if [ "$HAS_FE_REVIEW_REQUEST" == "true" ]; then
