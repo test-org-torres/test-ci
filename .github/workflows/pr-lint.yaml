@@ -68,18 +68,25 @@ jobs:
     needs: [get-reviewers]
     if: ${{needs.get-reviewers.outputs.SHOULD_ADD_FE_REVIEW_REQUEST}}
     runs-on: ubuntu-latest
+    env:
+      SHOULD_ADD_FE_REVIEW_REQUEST: ${{needs.get-reviewers.outputs.SHOULD_ADD_FE_REVIEW_REQUEST}}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Run script to add reviewer
-      run: gh pr edit "$PR_NUMBER" --add-reviewer test-org-torres/torres-sdk
+      run: |
+        if($SHOULD_ADD_FE_REVIEW_REQUEST == "true"); then
+          gh pr edit "$PR_NUMBER" --add-reviewer test-org-torres/torres-sdk
+        fi
 
   validate-fe-review:
     permissions: write-all
     name: Validate FE Review
     needs: [get-reviewers, add-reviewer]
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
