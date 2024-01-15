@@ -8,7 +8,7 @@ on:
     types: [custom_pull_request_event]
 
 env:
-  GITHUB_TOKEN: ${{ secrets.TEST_CI_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.MY_NEW_TOKEN }}
   PR_NUMBER: ${{ github.event.pull_request.number }}
   PR_TITLE: ${{ github.event.pull_request.title }}
   PATTERN: "^\\w+!:"
