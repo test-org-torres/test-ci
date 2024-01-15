@@ -52,6 +52,8 @@ jobs:
 
           SHOULD_ADD_FE_REVIEW_REQUEST="false"
           if [[ $PR_TITLE =~ $PATTERN ]]; then
+            echo "pattern: $PATTERN"
+            echo "has pattern"
             if [ "$HAS_FE_REVIEW_REQUEST" != "true" ]; then
               if [ "$WAS_REVIEWED_BY_FE" != "true" ]; then
                 SHOULD_ADD_FE_REVIEW_REQUEST="true"
