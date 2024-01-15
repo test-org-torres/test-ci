@@ -37,7 +37,10 @@ jobs:
           HAS_FE_REVIEW_REQUEST=$(echo "$PR_DATA" | jq '[.reviewRequests[].slug | select(. == "test-org-torres/torres-sdk")] | length > 0')
           REVIWERS=$(echo "$PR_DATA" | jq -r '.reviews[].author.login')
 
-          echo $ACTOR
+          echo "FE_MEMBERS: $FE_MEMBERS"
+          echo "HAS_FE_REVIEW_REQUEST: $HAS_FE_REVIEW_REQUEST"
+          echo "PR_DATA: $PR_DATA"
+          echo "REVIWERS: $REVIWERS"
 
           WAS_REVIEWED_BY_FE="false"
           for member in $FE_MEMBERS; do
