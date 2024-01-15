@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   add-fe-review-request:
-    name: ${{ github.event_name }} - Get Reviewers
+    name: Add FE Review Request
     permissions: write-all
     runs-on: ubuntu-latest
     outputs:
@@ -67,7 +67,7 @@ jobs:
 
   validate-fe-review:
     permissions: write-all
-    name: Validate FE Review
+    name: Validate FE Review Request
     needs: [add-fe-review-request]
     runs-on: ubuntu-latest
 
