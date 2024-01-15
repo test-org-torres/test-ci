@@ -37,48 +37,43 @@ jobs:
           HAS_FE_REVIEW_REQUEST=$(echo "$PR_DATA" | jq '[.reviewRequests[].slug | select(. == "test-org-torres/torres-sdk")] | length > 0')
           REVIWERS=$(echo "$PR_DATA" | jq -r '.reviews[].author.login')
 
-          echo "FE_MEMBERS: $FE_MEMBERS"
-          echo "HAS_FE_REVIEW_REQUEST: $HAS_FE_REVIEW_REQUEST"
-          echo "PR_DATA: $PR_DATA"
-          echo "REVIWERS: $REVIWERS"
-
           WAS_REVIEWED_BY_FE="false"
           for member in $FE_MEMBERS; do
             echo "member: $member"
             for reviewer in $REVIWERS; do
               echo "reviewer: $reviewer"
               if [ "$member" == "$reviewer" ]; then
-                echo "entered inner" 
                 WAS_REVIEWED_BY_FE="true"
                 break 2
               fi
             done
           done
 
-        
-           echo "WAS_REVIEWED_BY_FE: $WAS_REVIEWED_BY_FE"  
-          echo "WAS_REVIEWED_BY_FE=$WAS_REVIEWED_BY_FE" >> $GITHUB_OUTPUT
+
+          SHOULD_ADD_FE_REVIEW_REQUEST="false"
+          if [[ $PR_TITLE =~ $PATTERN ]]; then
+            if [ "$HAS_FE_REVIEW_REQUEST" != "true" ]; then
+              if [ "$WAS_REVIEWED_BY_FE" != "true" ]; then
+                SHOULD_ADD_FE_REVIEW_REQUEST="true"
+              fi
+            fi
+          fi
+
           echo "HAS_FE_REVIEW_REQUEST=$HAS_FE_REVIEW_REQUEST" >> $GITHUB_OUTPUT
+          echo "SHOULD_ADD_FE_REVIEW_REQUEST=$SHOULD_ADD_FE_REVIEW_REQUEST" >> $GITHUB_OUTPUT
 
   add-reviewer:
     permissions: write-all
-    name: Add Reviewer
+    name: Add FE Review Request
     needs: [get-reviewers]
+    if: ${{needs.get-reviewers.outputs.SHOULD_ADD_FE_REVIEW_REQUEST}}
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Run script to add reviewer
-      env:
-        PR_REVIEWERS: ${{ toJson(github.event.pull_request.requested_reviewers) }}
-        PR_TEAM_REVIEWERS: ${{ toJson(github.event.pull_request.team_reviewers) }}
-        PATTERN: "^\\w+!:"
-        WAS_REVIEWED_BY_FE: ${{needs.get-reviewers.outputs.WAS_REVIEWED_BY_FE}}
-        HAS_FE_REVIEW_REQUEST: ${{needs.get-reviewers.outputs.HAS_FE_REVIEW_REQUEST}}
-        REVIEWER: "test-org-torres/torres-sdk"
-
-      run: bash .github/scripts/add-reviewer.sh
+      run: gh pr edit "$PR_NUMBER" --add-reviewer test-org-torres/torres-sdk
 
   validate-fe-review:
     permissions: write-all
