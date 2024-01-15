@@ -22,7 +22,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     outputs:
-        IS_APPROVED_BY_FE: ${{ steps.reviewers.outputs.IS_APPROVED_BY_FE }}
+        WAS_REVIEWED_BY_FE: ${{ steps.reviewers.outputs.WAS_REVIEWED_BY_FE }}
         HAS_FE_REVIEW_REQUEST: ${{ steps.reviewers.outputs.HAS_FE_REVIEW_REQUEST }}
 
     steps:
@@ -32,69 +32,69 @@ jobs:
       - name: Get Requested Reviewers
         id: reviewers
         run: |
-          echo '${{ github.actor }}'
           FE_MEMBERS=$(gh api orgs/test-org-torres/teams/torres-sdk/members --jq '.[].login')
           PR_DATA=$(gh pr view https://github.com/test-org-torres/test-ci/pull/$PR_NUMBER --json reviewRequests,reviews)
           HAS_FE_REVIEW_REQUEST=$(echo "$PR_DATA" | jq '[.reviewRequests[].slug | select(. == "test-org-torres/torres-sdk")] | length > 0')
-          APPROVALS=$(echo "$PR_DATA" | jq -r '.reviews[] | select(.state=="APPROVED").author.login')
+          REVIWERS=$(echo "$PR_DATA" | jq -r '.reviews[].author.login')
 
-          echo $ACTOR
-
-          IS_APPROVED_BY_FE="false"
+          WAS_REVIEWED_BY_FE="false"
           for member in $FE_MEMBERS; do
-            for approver in $APPROVALS; do
-              if [ "$member" == "$approver" ]; then
-                IS_APPROVED_BY_FE="true"
+            echo "member: $member"
+            for reviewer in $REVIWERS; do
+              echo "reviewer: $reviewer"
+              if [ "$member" == "$reviewer" ]; then
+                WAS_REVIEWED_BY_FE="true"
                 break 2
               fi
             done
           done
 
-          echo "IS_APPROVED_BY_FE=$IS_APPROVED_BY_FE" >> $GITHUB_OUTPUT
+
+          SHOULD_ADD_FE_REVIEW_REQUEST="false"
+          if [[ $PR_TITLE =~ $PATTERN ]]; then
+            if [ "$HAS_FE_REVIEW_REQUEST" != "true" ]; then
+              if [ "$WAS_REVIEWED_BY_FE" != "true" ]; then
+                SHOULD_ADD_FE_REVIEW_REQUEST="true"
+              fi
+            fi
+          fi
+
           echo "HAS_FE_REVIEW_REQUEST=$HAS_FE_REVIEW_REQUEST" >> $GITHUB_OUTPUT
+          echo "SHOULD_ADD_FE_REVIEW_REQUEST=$SHOULD_ADD_FE_REVIEW_REQUEST" >> $GITHUB_OUTPUT
 
   add-reviewer:
     permissions: write-all
-    name: Add Reviewer
+    name: Add FE Review Request
     needs: [get-reviewers]
     runs-on: ubuntu-latest
+    env:
+      SHOULD_ADD_FE_REVIEW_REQUEST: ${{needs.get-reviewers.outputs.SHOULD_ADD_FE_REVIEW_REQUEST}}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Run script to add reviewer
-      env:
-        PR_REVIEWERS: ${{ toJson(github.event.pull_request.requested_reviewers) }}
-        PR_TEAM_REVIEWERS: ${{ toJson(github.event.pull_request.team_reviewers) }}
-        PATTERN: "^\\w+!:"
-        IS_APPROVED_BY_FE: ${{needs.get-reviewers.outputs.IS_APPROVED_BY_FE}}
-        HAS_FE_REVIEW_REQUEST: ${{needs.get-reviewers.outputs.HAS_FE_REVIEW_REQUEST}}
-        REVIEWER: "test-org-torres/torres-sdk"
-
-      run: bash .github/scripts/add-reviewer.sh
+      run: |
+        if($SHOULD_ADD_FE_REVIEW_REQUEST == "true"); then
+          gh pr edit "$PR_NUMBER" --add-reviewer test-org-torres/torres-sdk
+        fi
 
   validate-fe-review:
     permissions: write-all
     name: Validate FE Review
     needs: [get-reviewers, add-reviewer]
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Ensure FE Approval
       env:
-        PATTERN: "^\\w+!:"
-        IS_APPROVED_BY_FE: ${{needs.get-reviewers.outputs.IS_APPROVED_BY_FE}}
         HAS_FE_REVIEW_REQUEST: ${{needs.get-reviewers.outputs.HAS_FE_REVIEW_REQUEST}}
 
       run: |
-        if [ "$IS_APPROVED_BY_FE" != "true" ]; then
-          if [[ $PR_TITLE =~ $PATTERN ]]; then
-            exit 1
-          fi
-
-          if [ "$HAS_FE_REVIEW_REQUEST" == "true" ]; then
-            exit 1
-          fi
+        if [ "$HAS_FE_REVIEW_REQUEST" == "true" ]; then
+          exit 1
         fi
