@@ -7,6 +7,10 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.THIS_REPO_SECRET }}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   rerun-lint-pr:
     runs-on: ubuntu-latest
@@ -18,7 +22,7 @@ jobs:
       - name: Get latest workflow run ID
         id: get_run_id
         run: |
-          LATEST_RUN_ID=$(gh run list --repo ${{ github.repository }} --branch ${{ github.event.pull_request.head.ref }} --json databaseId,name --jq '.[] | select(.name == "Lint PR") | .databaseId' | head -n 1)
+          LATEST_RUN_ID=$(gh run list --repo ${{ github.repository }} --branch ${{ github.event.pull_request.head.ref }} --json databaseId,name --jq '.[] | select(.name == "FE Conditional Review") | .databaseId' | head -n 1)
 
           echo "LATEST_RUN_ID=$LATEST_RUN_ID" >> $GITHUB_ENV
 

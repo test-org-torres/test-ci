@@ -1,11 +1,9 @@
-name: "Lint PR"
+name: "FE Conditional Review"
 
 on:
   pull_request:
-    types: [opened, edited, synchronize, review_requested, review_request_removed]
-
-  repository_dispatch:
-    types: [custom_pull_request_event]
+    types:
+      [opened, edited, synchronize, review_requested, review_request_removed]
 
 env:
   GITHUB_TOKEN: ${{ secrets.MY_NEW_TOKEN }}
@@ -23,7 +21,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     outputs:
-        HAS_FE_REVIEW_REQUEST: ${{ steps.reviewers.outputs.HAS_FE_REVIEW_REQUEST }}
+      HAS_FE_REVIEW_REQUEST: ${{ steps.reviewers.outputs.HAS_FE_REVIEW_REQUEST }}
 
     steps:
       - name: Checkout code
@@ -34,55 +32,135 @@ jobs:
         run: |
           echo $(gh auth status --show-token)
           FE_MEMBERS=$(gh api orgs/test-org-torres/teams/torres-sdk/members --jq '.[].login')
+          echo "FE_MEMBERS=$FE_MEMBERS"
           PR_DATA=$(gh pr view https://github.com/test-org-torres/test-ci/pull/$PR_NUMBER --json reviewRequests,reviews)
           HAS_FE_REVIEW_REQUEST=$(echo "$PR_DATA" | jq '[.reviewRequests[].slug | select(. == "test-org-torres/torres-sdk")] | length > 0')
           REVIWERS=$(echo "$PR_DATA" | jq -r '.reviews[].author.login')
-
           WAS_REVIEWED_BY_FE="false"
           for member in $FE_MEMBERS; do
-            echo "member: $member"
             for reviewer in $REVIWERS; do
-              echo "reviewer: $reviewer"
               if [ "$member" == "$reviewer" ]; then
                 WAS_REVIEWED_BY_FE="true"
                 break 2
               fi
             done
           done
-
-
           SHOULD_ADD_FE_REVIEW_REQUEST="false"
           if [[ $PR_TITLE =~ $PATTERN ]]; then
-            echo "pattern: $PATTERN"
-            echo "has pattern"
             if [ "$HAS_FE_REVIEW_REQUEST" != "true" ]; then
               if [ "$WAS_REVIEWED_BY_FE" != "true" ]; then
                 SHOULD_ADD_FE_REVIEW_REQUEST="true"
               fi
             fi
           fi
-
           if($SHOULD_ADD_FE_REVIEW_REQUEST == "true"); then
             gh pr edit "$PR_NUMBER" --add-reviewer test-org-torres/torres-sdk
           fi
-
           echo "HAS_FE_REVIEW_REQUEST=$HAS_FE_REVIEW_REQUEST" >> $GITHUB_OUTPUT
-
-  validate-fe-review:
+  confirm-fe-review-status:
     permissions: write-all
-    name: Validate FE Review Request
+    name: Confirm FE Review Status
     needs: [add-fe-review-request]
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Ensure FE Has Reviewed PR
-      env:
-        HAS_FE_REVIEW_REQUEST: ${{needs.add-fe-review-request.outputs.HAS_FE_REVIEW_REQUEST}}
+      - name: Ensure FE Has Reviewed PR
+        env:
+          HAS_FE_REVIEW_REQUEST: ${{needs.add-fe-review-request.outputs.HAS_FE_REVIEW_REQUEST}}
 
-      run: |
-        if [ "$HAS_FE_REVIEW_REQUEST" == "true" ]; then
-          exit 1
-        fi
+        run: |
+          if [ "$HAS_FE_REVIEW_REQUEST" == "true" ]; then
+            exit 1
+          fi
+
+
+# name: "Lint PR"
+
+# on:
+#   pull_request:
+#     types: [opened, edited, synchronize, review_requested, review_request_removed]
+
+#   repository_dispatch:
+#     types: [custom_pull_request_event]
+
+# env:
+#   GITHUB_TOKEN: ${{ secrets.MY_NEW_TOKEN }}
+#   PR_NUMBER: ${{ github.event.pull_request.number }}
+#   PR_TITLE: ${{ github.event.pull_request.title }}
+#   PATTERN: "^\\w+!:"
+
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+#   cancel-in-progress: true
+
+# jobs:
+#   add-fe-review-request:
+#     name: Add FE Review Request
+#     permissions: write-all
+#     runs-on: ubuntu-latest
+#     outputs:
+#         HAS_FE_REVIEW_REQUEST: ${{ steps.reviewers.outputs.HAS_FE_REVIEW_REQUEST }}
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: Add FE Review Request
+#         id: reviewers
+#         run: |
+#           FE_MEMBERS=$(gh api orgs/test-org-torres/teams/torres-sdk/members --jq '.[].login')
+#           PR_DATA=$(gh pr view https://github.com/test-org-torres/test-ci/pull/$PR_NUMBER --json reviewRequests,reviews)
+#           HAS_FE_REVIEW_REQUEST=$(echo "$PR_DATA" | jq '[.reviewRequests[].slug | select(. == "test-org-torres/torres-sdk")] | length > 0')
+#           REVIWERS=$(echo "$PR_DATA" | jq -r '.reviews[].author.login')
+
+#           WAS_REVIEWED_BY_FE="false"
+#           for member in $FE_MEMBERS; do
+#             echo "member: $member"
+#             for reviewer in $REVIWERS; do
+#               echo "reviewer: $reviewer"
+#               if [ "$member" == "$reviewer" ]; then
+#                 WAS_REVIEWED_BY_FE="true"
+#                 break 2
+#               fi
+#             done
+#           done
+
+
+#           SHOULD_ADD_FE_REVIEW_REQUEST="false"
+#           if [[ $PR_TITLE =~ $PATTERN ]]; then
+#             echo "pattern: $PATTERN"
+#             echo "has pattern"
+#             if [ "$HAS_FE_REVIEW_REQUEST" != "true" ]; then
+#               if [ "$WAS_REVIEWED_BY_FE" != "true" ]; then
+#                 SHOULD_ADD_FE_REVIEW_REQUEST="true"
+#               fi
+#             fi
+#           fi
+
+#           if($SHOULD_ADD_FE_REVIEW_REQUEST == "true"); then
+#             gh pr edit "$PR_NUMBER" --add-reviewer test-org-torres/torres-sdk
+#           fi
+
+#           echo "HAS_FE_REVIEW_REQUEST=$HAS_FE_REVIEW_REQUEST" >> $GITHUB_OUTPUT
+
+#   validate-fe-review:
+#     permissions: write-all
+#     name: Validate FE Review Request
+#     needs: [add-fe-review-request]
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v3
+
+#     - name: Ensure FE Has Reviewed PR
+#       env:
+#         HAS_FE_REVIEW_REQUEST: ${{needs.add-fe-review-request.outputs.HAS_FE_REVIEW_REQUEST}}
+
+#       run: |
+#         if [ "$HAS_FE_REVIEW_REQUEST" == "true" ]; then
+#           exit 1
+#         fi
