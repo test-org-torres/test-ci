@@ -5,7 +5,7 @@ on:
     types: [submitted, edited, dismissed]
 
 env:
-  GITHUB_TOKEN: ${{ secrets.THIS_REPO_SECRET }}
+  GITHUB_TOKEN: ${{ secrets.MY_NEW_TOKEN }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
