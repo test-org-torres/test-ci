@@ -24,7 +24,8 @@ jobs:
         id: get_run_id
         run: |
 
-          echo "event: ${{ github.event_name }}"
+          echo "event name: ${{ github.event_name }}"
+          echo "event action: ${{ github.event.action }}"
           
           LATEST_RUN_ID=$(gh run list --repo ${{ github.repository }} --branch ${{ github.event.pull_request.head.ref }} --json databaseId,name --jq '.[] | select(.name == "FE Conditional Review") | .databaseId' | head -n 1)
 
