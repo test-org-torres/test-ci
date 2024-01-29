@@ -23,6 +23,9 @@ jobs:
       - name: Get latest workflow run ID
         id: get_run_id
         run: |
+
+          echo "event: ${{ github.event_name }}"
+          
           LATEST_RUN_ID=$(gh run list --repo ${{ github.repository }} --branch ${{ github.event.pull_request.head.ref }} --json databaseId,name --jq '.[] | select(.name == "FE Conditional Review") | .databaseId' | head -n 1)
 
           echo "LATEST_RUN_ID=$LATEST_RUN_ID" >> $GITHUB_ENV
